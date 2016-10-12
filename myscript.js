@@ -79,7 +79,7 @@ function initFun()
 	    .catch(
 	    		function(e)
 	    		{
-	    			document.getElementById(friends_in_chatroom).innerText="失败。。";
+	    			div.innerText="失败。。";
 	    		}
 	    );
 	}
