@@ -1,6 +1,9 @@
 # wechatFriendsInChatroom
+#动机
+最近加了一个产品交流的群，发现已经有好友在里面了，好奇会不会有其他好友，几百人的群一个个看肯定不现实，于是就打算代码实现啦。
+
 #功能
-列出微信群里的通讯录好友列表
+列出微信群里的通讯录好友列表。
 
 #用法
 
@@ -12,6 +15,5 @@
 
 4. 打开微信网页版：[https://wx.qq.com](https://wx.qq.com)
 5. 手机扫描登录后，点击任意群即可在左上方显示，效果如图：
-
 
 ![效果](https://raw.githubusercontent.com/ztinpn/wechatFriendsInChatroom/master/sample.jpg "效果")
