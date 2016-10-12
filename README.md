@@ -17,3 +17,4 @@
 5. 手机扫描登录后，点击任意群即可在左上方显示，效果如图：
 
 ![效果](https://raw.githubusercontent.com/ztinpn/wechatFriendsInChatroom/master/sample.jpg "效果")
+
