@@ -36,7 +36,7 @@ function initFun()
 	}
 	function dealCommon(usersInChatRoom,chatRoomName)//显示群里的好友列表
 	{
-		var commonList = [];
+	    var commonList = [];
 	    var commonListStr = "<ul>";
 	    var isEmpty = true;
 	    var cnt = 0;
@@ -161,9 +161,6 @@ function initFun()
 					};
 				}
 		);
-
-
-
 	}
 	else{
 		setTimeout(function(){initFun();},1000);//等待登录
