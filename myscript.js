@@ -1,9 +1,19 @@
 console.log("Hi!");
 
-function initFun() {
-	function getJson(url,method,head){
+(function(){
+
+
+function initFun()
+{
+
+	var baseURI = "https://wx.qq.com/cgi-bin/mmwebwx-bin/";
+	var userAvatarBaseUrI = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon?seq=0&username=";
+
+	function getJson(url,method,head)
+	{
 	    	return new Promise(	
-	    		function(resolve,reject){
+	    		function(resolve,reject)
+	    		{
 			        var xhr = new XMLHttpRequest();
 			        xhr.onload = function(e){
 			        	if(this.status == 200){
@@ -24,7 +34,8 @@ function initFun() {
 			        }
 	    	});
 	}
-	function dealCommon(usersInChatRoom,chatRoomName){
+	function dealCommon(usersInChatRoom,chatRoomName)//显示群里的好友列表
+	{
 		var commonList = [];
 	    var commonListStr = "<ul>";
 	    var isEmpty = true;
@@ -47,63 +58,79 @@ function initFun() {
 	    		""].join("\n")+
 	    		"</style>";
 	}
-	function getCommonUser(chatRoomName,username){
-		
-		
-	    function getCookie(key){
-	    return document.cookie.match(eval("/; "+key+"=(.+?); /"))[1];
+	function getCommonUser(chatRoomName,username)//得到选定群的好友列表
+	{
+	    function getCookie(key)
+	    {
+	    	return document.cookie.match(eval("/; "+key+"=(.+?); /"))[1];
 	    }
-	    
-	    
-	    
-	    var baseURI = "https://wx.qq.com/cgi-bin/mmwebwx-bin/";
-	    var skey = document.querySelector(".header .avatar").innerHTML.match(/;skey=(.+?)\"/)[1];
-	    
-	    var head = '{"BaseRequest":{"Uin":'+getCookie("wxuin")+',"Sid":"'+getCookie("wxsid")+'","Skey":"'+skey+'","DeviceID":""},"Count":1,"List":[{"UserName":"'+username+'","EncryChatRoomId":""}]}';
-	    
-	    getJson(baseURI + "webwxbatchgetcontact?type=ex&r=1","post",head)
+	    var head = '{"BaseRequest":{"Uin":'+getCookie("wxuin")
+	    			+ ',"Sid":"'+getCookie("wxsid")+'","Skey":"'
+	    			+ skey + '","DeviceID":""},"Count":1,"List":[{"UserName":"'
+	    			+ username + '","EncryChatRoomId":""}]}';
+	    getJson(baseURI + "webwxbatchgetcontact?type=ex&r=1","post",head)//获取选定群的成员列表
 	    .then(
-	    		function(usersInChatRoom){
+	    		function(usersInChatRoom)
+	    		{
 	    			usersInChatRoom = usersInChatRoom.ContactList[0].MemberList;
-	    		    if(!window.listObj){
-	    		        getJson(baseURI + "webwxgetcontact?lang=zh_CN&r=1&seq=0&skey=" + skey,"get","")
-	    		        .then(
-	    		        		function(ContactList){
-	    		        			var MemberList = ContactList.MemberList;
-	    		    		        listObj = {};
-	    		    		        for(var i = 0; i < MemberList.length; i ++){
-	    		    		            listObj[MemberList[i]["UserName"]] = MemberList[i];
-	    		    		        }
-	    		    		        dealCommon(usersInChatRoom,chatRoomName);
-	    		        		});
-	    		        
-	    		    }
 	    		    dealCommon(usersInChatRoom,chatRoomName);
 	    		}
 	    )
 	    .catch(
-	    		function(e){
-	    			div.innerText="失败。。";
+	    		function(e)
+	    		{
+	    			document.getElementById(friends_in_chatroom).innerText="失败。。";
 	    		}
 	    );
 	}
 
-	if(document.querySelectorAll(".nav_view .chat_list .chat_list div").length > 3){
-
-		if(!div){
-			var div = document.createElement("div");
-		}
+	if(document.querySelectorAll(".nav_view .chat_list .chat_list div").length > 3){//说明登录成功并且最近联系人列表已载入
+		var skey = document.querySelector(".header .avatar").innerHTML.match(/;skey=(.+?)\"/)[1];
+		var div = document.createElement("div");//显示框
 		div.id = "friends_in_chatroom";
 		div.style.cssText = "position:fixed;padding:10px;left:0px;"
 			+ "top:0px;font-size:10pt;color:black;background-color:white;" +
 					"max-height: 95%;overflow: auto;"
 		document.body.appendChild(div);
-		div.innerText="请点击群名称";
-		var userAvatarBaseUrI = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon?seq=0&username=";
+		
+		var listObj = {"isEmpty":true};//用于存储通讯录里的好友列表;
+		var tryCount = 0;
+		function initListObj(){
+			tryCount ++;
+			div.innerText="获取通讯录的好友列表中...";
+			if(listObj["isEmpty"]){
+				getJson(baseURI + "webwxgetcontact?lang=zh_CN&r=1&seq=0&skey=" + skey,"get","")//获取通讯录的好友列表
+				.then(
+						function(ContactList)
+						{
+							var MemberList = ContactList.MemberList;
+					        listObj = {};
+					        for(var i = 0; i < MemberList.length; i ++){
+					            listObj[MemberList[i]["UserName"]] = MemberList[i];
+					        }
+					        listObj["isEmpty"] = false;
+					        div.innerText="获取通讯录的好友列表中...成功!";
+					        setTimeout(function(){
+					        	div.innerText="请点击群名称";
+					        },1000);
+						}
+				).catch(function(e){
+					if(tryCount < 10){
+						initListObj();
+					}
+					else{
+						div.innerText="获取通讯录的好友列表失败！";
+					}
+				});
+			}
+		}
+		initListObj();
 		var myUserName = document.querySelectorAll(".header img")[0].src.match(/username=(.+?)&/)[1];
 		document.querySelectorAll(".nav_view").forEach(
-				function(x){
-					x.onclick=function(e){ 
+				function(x)
+				{
+					x.onclick=function(e)
+					{ 
 					    div.innerText="载入中...";
 					    var currentEle = e.srcElement;
 					    while(currentEle.className.indexOf("chat_item") == -1 
@@ -134,10 +161,13 @@ function initFun() {
 					};
 				}
 		);
+
+
+
 	}
 	else{
-		setTimeout(initFun,1000);
+		setTimeout(function(){initFun();},1000);//等待登录
 	}
 }
-
-setTimeout(initFun, 1000);
+setTimeout(function(){initFun();},1000);//等待登录
+})();
