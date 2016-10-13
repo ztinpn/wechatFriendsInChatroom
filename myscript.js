@@ -6,8 +6,8 @@ console.log("Hi!");
 function initFun()
 {
 
-	var baseURI = "https://wx.qq.com/cgi-bin/mmwebwx-bin/";
-	var userAvatarBaseUrI = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgeticon?seq=0&username=";
+	var baseURI = "https://"+window.location.hostname+"/cgi-bin/mmwebwx-bin/";
+	var userAvatarBaseUrI = "https://"+window.location.hostname+"/cgi-bin/mmwebwx-bin/webwxgeticon?seq=0&username=";
 
 	function getJson(url,method,head)
 	{
