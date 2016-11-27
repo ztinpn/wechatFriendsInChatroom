@@ -8,7 +8,6 @@ function initFun()
 
 	var baseURI = "https://"+window.location.hostname+"/cgi-bin/mmwebwx-bin/";
 	var userAvatarBaseUrI = "https://"+window.location.hostname+"/cgi-bin/mmwebwx-bin/webwxgeticon?seq=0&username=";
-
 	function getJson(url,method,head)
 	{
 	    	return new Promise(	
@@ -57,6 +56,21 @@ function initFun()
 	    		"#total_num{text-align: center;margin-bottom: 5px;}",
 	    		""].join("\n")+
 	    		"</style>";
+
+	    div.onclick = function(){
+	    	var htmlStr = "";
+	    	var newWin = window.open();
+	    	for(var i = 0; i < usersInChatRoom.length; i ++ ){
+	        	
+	            
+	            htmlStr += "<li><img style=\"width:30px;vertical-align: middle;\" src='"+
+	            userAvatarBaseUrI+usersInChatRoom[i].UserName
+	            +"&type=big'/>"+usersInChatRoom[i].NickName + "</li>";
+	           
+	        
+	    }
+	    	newWin.document.body.innerHTML = htmlStr;
+	    };
 	}
 	function getCommonUser(chatRoomName,username)//得到选定群的好友列表
 	{
@@ -104,14 +118,58 @@ function initFun()
 						function(ContactList)
 						{
 							var MemberList = ContactList.MemberList;
-					        listObj = {};
+
+							//列出统计信息
+
+							var citys = {};
+							var sexs = {};
+							var total = MemberList.length;
+							for(var i = 0; i < MemberList.length; i ++){
+								var province = MemberList[i].Province;
+								var sex = MemberList[i].Sex.toString();
+								if(province == ""){
+									province = "未知";
+								}
+								if(citys[province] != undefined){
+									citys[province]++;
+								}
+								else{
+									citys[province] = 1;
+								}
+								if(sexs[sex] != undefined){
+									sexs[sex]++;
+								}
+								else{
+									sexs[sex] = 1;
+								}
+							}
+							
+							var sexStr = ["未知","男","女"];
+							var outStr = "\n--------\n好友数:"+total+"\n性别:\n";
+							for(var x in sexs){
+								outStr += sexStr[x] + ":" + sexs[x] + "\n";
+							}
+							outStr += "\n省份:\n";
+							var citys_arr = [];
+
+							for(var x in citys){
+								citys_arr.push({name:x,num:citys[x]});
+								//outStr += x + ":" + citys[x] + "\n";
+							}
+							citys_arr.sort(function(x,y){return y["num"]-x["num"];})
+							for(var i = 0; i < citys_arr.length; i ++){
+								outStr += citys_arr[i].name + ":" + citys_arr[i].num + "\n";
+							}
+							console.log(outStr);
+							listObj = {};
 					        for(var i = 0; i < MemberList.length; i ++){
 					            listObj[MemberList[i]["UserName"]] = MemberList[i];
 					        }
 					        listObj["isEmpty"] = false;
 					        div.innerText="获取通讯录的好友列表中...成功!";
 					        setTimeout(function(){
-					        	div.innerText="请点击群名称";
+					        	div.innerHTML="请点击群名称" + "\n" + "<span style='font-size:10px;'>" 
+					        	+ outStr.replace(/\n/g,"<br>") + "</span>";
 					        },1000);
 						}
 				).catch(function(e){
